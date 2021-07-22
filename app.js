@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 
 const app = express();
@@ -8,6 +7,28 @@ app.use(express.json());
 mongoose.connect("mongodb://localhost:27017/accounting_api", {
   useNewUrlParser: true,  useUnifiedTopology: true 
 });
+
+// ledger schema to be deleted
+const ledgerSchema = mongoose.Schema({
+    name: String,
+    debited: {type: Boolean, default: false},
+    credited: {type: Boolean, default: false},
+    value: Number
+});
+
+const updateLedger = (debit_accounts, credit_accounts)=>{
+    for(i = 0; i < credit_accounts.length; i++){
+        let nameOfAccount = credit_accounts[i].account;
+        const model = mongoose.model('ledger', ledgerSchema, nameOfAccount);
+        const doc = new model({
+            name: nameOfAccount,
+            credited: true,
+            value: credit_accounts[i].value
+        });
+        doc.save();
+    }
+}
+
 
 // chart of accounts schema and model
 const chartSchema = mongoose.Schema({
@@ -195,6 +216,7 @@ app.route('/entry')
     });
     newEntry.save((err)=>{
         if(!err){
+            updateLedger(debit_accounts, credit_accounts);
             res.send('entry created successfully')
         } else {
             res.send(err)
