@@ -1,22 +1,15 @@
 const express = require("express");
 const mongoose = require('mongoose');
+const chart = require('./routes/chart');
+const Chart = require('./models/Chart');
 
 const app = express();
 app.use(express.json());
+app.use('/chart', chart);
 
 mongoose.connect("mongodb://localhost:27017/accounting_api", {
   useNewUrlParser: true,  useUnifiedTopology: true 
 });
-
-
-
-// chart of accounts schema and model
-const chartSchema = mongoose.Schema({
-    name: {type: String, required: true, unique: true},
-    category: {type: String, enum: ['Asset', 'Equity', 'Liability', 'Expense', 'Revenue']},
-});
-
-const Chart = mongoose.model('Chart', chartSchema);
 
 
 const entryAccountSchema = mongoose.Schema({
@@ -76,103 +69,6 @@ const validateValues = (debit_accounts, credit_accounts, correction_entry)=>{
     return ((debitValues === creditValues) || correction_entry);
 }
 
-// handling requests to query all accounts in the chart
-app.get('/chart', (req, res)=>{
-    Chart.find((err, result)=>{
-        if(!err){
-            res.send(result);
-        } else {
-            res.send(err);
-        }
-    })
-});
-
-// handling requests to add an account to the chart
-app.post('/chart', (req, res)=>{
-    let {accountName, accountCategory} = req.body;
-    accountName = accountName.toUpperCase();
-    const newAccont = new Chart({
-        name: accountName,
-        category: accountCategory
-    });
-    newAccont.save((err)=>{
-        if(!err){
-            res.send('Successfully added account');
-        } else {
-            res.send(err);
-
-        }
-    });
-    
-});
-
-// handling requests to delete all accounts on the chart
-app.delete('/chart', (req, res)=>{
-    Chart.deleteMany((err)=>{
-        if(!err){
-            res.send('Successfully deleted all accounts');
-        } else {
-            res.send(err);            
-        }
-    })
-});
-
-// requests targeting a single account
-// getting an account
-app.route('/chart/:account')
-.get((req, res)=>{
-    let account = req.params.account.toUpperCase();
-    Chart.findOne({name: account}, (err, foundAccount)=>{
-        if(foundAccount){
-            res.send(foundAccount);
-        } else {
-            res.send('No matching account found')
-        }
-    })
-
-})
-.put((req, res)=>{
-    const account = req.params.account.toUpperCase();
-    let {accountName, accountCategory} = req.body;
-    accountName = accountName.toUpperCase();
-
-    Chart.update({name: account},
-        {name: accountName, category: accountCategory},
-        {overwrite: true},
-        (err)=>{
-            if(!err){
-                res.send('successfully updted account')
-            } else {
-                res.send(err);
-            }
-        })
-})
-.patch((req, res)=>{
-    const account = req.params.account.toUpperCase();
-    const {accountCategory} = req.body;    
-    Chart.update({name: account},
-        {$set: {category: accountCategory}},
-        (err)=>{
-            if(!err){
-                res.send('successfully updated account')
-            } else {
-                res.send(err);
-            }
-        })
-
-})
-.delete((req, res)=>{
-    const account = req.params.account.toUpperCase();
-    Chart.deleteOne({name: account}, (err)=>{
-        if(!err){
-            res.send('Account deleted successfully')
-        } else {
-            res.send(err);
-        }
-    })
-})
-
-
 // handling requests to query all journal entries
 app.route('/entry')
 .get((req, res)=>{
@@ -215,7 +111,6 @@ app.route('/entry')
         }
     })
 })
-
 
 app.listen(3000, ()=>{
     console.log('strarted on port 3000');
