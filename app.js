@@ -1,20 +1,22 @@
 const express = require("express");
-const mongoose = require('mongoose');
+const app = express();
 const chart = require('./routes/chart');
 const entry = require('./routes/entry');
-const Chart = require('./models/Chart');
-const Entry = require('./models/Entry');
+const connectDB = require('./db/connect');
+require('dotenv').config();
 
-const app = express();
+// middlewares
 app.use(express.json());
 app.use('/chart', chart);
 app.use('/entry', entry)
 
-mongoose.connect("mongodb://localhost:27017/accounting_api", {
-  useNewUrlParser: true,  useUnifiedTopology: true 
-});
+const start = async ()=>{
+  try {
+    await connectDB(process.env.MONGO_URI);
+    app.listen(3000, ()=>{console.log('strarted on port 3000')});
+  } catch (error) {
+    console.log(error);
+  }
+}
 
-
-app.listen(3000, ()=>{
-    console.log('strarted on port 3000');
-});
+start();
