@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const entryAccountSchema = mongoose.Schema({
-    account: {type: String, required: true},
+    account: {type: String, required: [true, 'must provide account name'], trim: true},
     value: {type: Number, required: true}
 });
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {getAllAccounts, postAccount, deleteAllAccounts, getSingleAccount,
-putSingleAccount, patchSingleAccount, deleteSingleAccount
+patchSingleAccount, deleteSingleAccount
 } = require('../controllers/chart')
 
 
@@ -9,7 +9,7 @@ putSingleAccount, patchSingleAccount, deleteSingleAccount
 router.route('/').get(getAllAccounts).post(postAccount).delete(deleteAllAccounts);
 
 // requests targeting a single account
-router.route('/:account').get(getSingleAccount).put(putSingleAccount)
+router.route('/:account').get(getSingleAccount)
 .patch(patchSingleAccount).delete(deleteSingleAccount);
 
 module.exports = router;

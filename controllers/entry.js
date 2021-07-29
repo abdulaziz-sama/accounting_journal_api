@@ -1,12 +1,13 @@
 const Entry = require('../models/Entry');
 const {entryValidator} = require('../utility/validation');
+const postToLedger = require('../utility/ledger_creator')
 
 const getEntry = (req, res)=>{
     Entry.find((err, entries)=>{
         if(!err){
-            res.send(entries)
+            res.status(200).json(entries)
         } else {
-            res.send(err)
+            res.status(500).send(err)
         }
     })
 }
@@ -20,11 +21,12 @@ const postEntry = async (req, res)=>{
         debit_accounts: debit_accounts,
         credit_accounts: credit_accounts    
     });
-    newEntry.save((err)=>{
+    newEntry.save((err, entry)=>{
         if(!err){
-            res.send('entry created successfully')
+            postToLedger(debit_accounts, credit_accounts, entry.date, entry._id)
+            res.status(201).send(credit_accounts)
         } else {
-            res.send(err)
+            res.status(500).send(err)
         }
     });
 } else {

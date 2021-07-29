@@ -1,27 +1,27 @@
 const Chart = require('../models/Chart');
 
 const getAllAccounts = (req, res)=>{
-    Chart.find((err, result)=>{
+    Chart.find((err, accounts)=>{
         if(!err){
-            res.send(result);
+            res.status(200).json(accounts);
         } else {
-            res.send(err);
+            res.status(500).send(err);
         }
     })
 }
 
 const postAccount = (req, res)=>{
-    let {accountName, accountCategory} = req.body;
-    accountName = accountName.toUpperCase();
+    let {name, category, statement} = req.body;
     const newAccont = new Chart({
-        name: accountName,
-        category: accountCategory
+        name,
+        category,
+        statement
     });
     newAccont.save((err)=>{
         if(!err){
-            res.send('Successfully added account');
+            res.status(201).send('Successfully added account');
         } else {
-            res.send(err);
+            res.status(500).send(err);
         }
     });   
 }
@@ -40,35 +40,18 @@ const getSingleAccount = (req, res)=>{
     let account = req.params.account.toUpperCase();
     Chart.findOne({name: account}, (err, foundAccount)=>{
         if(foundAccount){
-            res.send(foundAccount);
+            res.status(200).json(foundAccount);
         } else {
-            res.send('No matching account found')
+            res.status(404).json({msg:'No matching account found'})
         }
     })
 }
 
-const putSingleAccount = (req, res)=>{
-    const account = req.params.account.toUpperCase();
-    let {accountName, accountCategory} = req.body;
-    accountName = accountName.toUpperCase();
-
-    Chart.update({name: account},
-        {name: accountName, category: accountCategory},
-        {overwrite: true},
-        (err)=>{
-            if(!err){
-                res.send('successfully updted account')
-            } else {
-                res.send(err);
-            }
-        })
-}
 
 const patchSingleAccount = (req, res)=>{
-    const account = req.params.account.toUpperCase();
-    const {accountCategory} = req.body;    
-    Chart.update({name: account},
-        {$set: {category: accountCategory}},
+    Chart.update({name: req.params.account},
+        req.body,
+        {runValidators: true},
         (err)=>{
             if(!err){
                 res.send('successfully updated account')
@@ -91,4 +74,4 @@ const deleteSingleAccount = (req, res)=>{
 
 
 module.exports = {getAllAccounts, postAccount, deleteAllAccounts, getSingleAccount,
-putSingleAccount, patchSingleAccount, deleteSingleAccount}
+patchSingleAccount, deleteSingleAccount}
