@@ -2,13 +2,17 @@ const express = require("express");
 const app = express();
 const chart = require('./routes/chart');
 const entry = require('./routes/entry');
+const trialBalance = require('./routes/trial-balance');
 const connectDB = require('./db/connect');
 require('dotenv').config();
+const notFound = require('./middleware/not-found');
 
 // middlewares
 app.use(express.json());
 app.use('/chart', chart);
 app.use('/entry', entry)
+app.use('/trial-balance', trialBalance)
+app.use(notFound);
 
 const start = async ()=>{
   try {

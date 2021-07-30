@@ -24,7 +24,7 @@ const postEntry = async (req, res)=>{
     newEntry.save((err, entry)=>{
         if(!err){
             postToLedger(debit_accounts, credit_accounts, entry.date, entry._id)
-            res.status(201).send(credit_accounts)
+            res.status(201).send('entry created successfully')
         } else {
             res.status(500).send(err)
         }
