@@ -1,8 +1,11 @@
 const Chart = require('../models/Chart');
 const createLedger = require('../models/Ledger');
+const path = require('path');
+const spawn = require("child_process").spawn;
 
 const getTrialBalance = async (req, res)=>{
     const result = await getAccounts();
+    const pythonProcess = spawn('python',[path.join(__dirname , "../python/create-excel.py"), JSON.stringify(result)]);
     res.status(200).json(result);
 }
 
@@ -22,6 +25,15 @@ const getAccounts = async ()=>{
             creditValue: result[0].creditScore})
         }
     }
+
+    // trial balance sum
+    // const trialBalanceTotal = trialBalance.reduce((total, account)=>{
+    //     total.debitTotal += account.debitValue;
+    //     total.creditTotal += account.creditValue;
+    //     return total;
+    // }, {debitTotal: 0, creditTotal: 0});
+
+    
 
     return trialBalance;
 }

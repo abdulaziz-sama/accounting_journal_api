@@ -29,10 +29,18 @@ const validateValues = (debit_accounts, credit_accounts, correction_entry)=>{
     let debitValues = 0;
     let creditValues = 0;
     for(i=0 ; i< debit_accounts.length; i++){
-        debitValues += debit_accounts[i].value;
+        if(debit_accounts[i].value <= 0){
+            return false            
+        } else {
+            debitValues += debit_accounts[i].value;
+        }
     }
     for(i=0; i < credit_accounts.length; i++){
-        creditValues += credit_accounts[i].value;
+        if(credit_accounts[i].value <= 0){
+            return false;
+        } else {
+            creditValues += credit_accounts[i].value;
+        }
     }
     return ((debitValues === creditValues) || correction_entry);
 }
